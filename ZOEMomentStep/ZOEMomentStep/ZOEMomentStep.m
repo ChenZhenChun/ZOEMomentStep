@@ -10,10 +10,13 @@
 static CMPedometer *_pedometer;
 @implementation ZOEMomentStep
 
-//获取设备步数
+//获取设备步数(开始计步)
 + (void)getMomentStepWithSucessBlock:(void (^)(CMPedometerData *))success errorBlock:(void (^)(id))failure {
     if ([ZOEMomentStep isStepCountingAvailable]) {
-        _pedometer = [[CMPedometer alloc] init];
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            _pedometer = [[CMPedometer alloc] init];
+        });
         [_pedometer startPedometerUpdatesFromDate:[ZOEMomentStep beginOfToday:[NSDate date]] withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
             if (error) {
                 failure(error);
@@ -23,6 +26,17 @@ static CMPedometer *_pedometer;
         }];
     }else  {
         failure (@"该设备不支持计步");
+    }
+}
+
+//结束计步
++ (void)stopPedometerUpdates {
+    if ([ZOEMomentStep isStepCountingAvailable]) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            _pedometer = [[CMPedometer alloc] init];
+        });
+        [_pedometer stopPedometerUpdates];
     }
 }
 

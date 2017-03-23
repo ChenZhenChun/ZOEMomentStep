@@ -23,12 +23,17 @@ typedef enum : NSUInteger {
 @interface ZOEMomentStep : NSObject
 
 /**
- 获取行走的步数
+ 获取行走的步数（开始计步）
 
  @param success 成功block回调
  @param failure 失败block回调
  */
 + (void)getMomentStepWithSucessBlock:(void(^)(CMPedometerData *data))success errorBlock:(void(^)(id error))failure;
+
+/**
+ 结束计步
+ */
++ (void)stopPedometerUpdates;
 
 /**
  热量计算（单位千卡）
