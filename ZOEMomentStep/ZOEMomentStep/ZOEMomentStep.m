@@ -18,14 +18,44 @@ static CMPedometer *_pedometer;
             _pedometer = [[CMPedometer alloc] init];
         });
         [_pedometer startPedometerUpdatesFromDate:[ZOEMomentStep beginOfToday:[NSDate date]] withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
-            if (error) {
-                failure(error);
+            if (![NSThread isMainThread]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (error) {
+                        if (error.code == 105) {
+                            failure (@"您需要进入手机的设置中设置允许访问\"运动与健康\"");
+                        }else {
+                            failure(error);
+                        }
+                    }else {
+                        success(pedometerData);
+                    }
+                });
             }else {
-                success(pedometerData);
+                if (error) {
+                    if (error.code == 105) {
+                        failure (@"您需要进入手机的设置中设置允许访问\"运动与健康\"");
+                    }else {
+                        failure(error);
+                    }
+                }else {
+                    success(pedometerData);
+                }
             }
         }];
     }else  {
-        failure (@"该设备不支持计步");
+        if (![NSThread isMainThread]) {
+            if (![CMMotionActivityManager isActivityAvailable]) {
+                failure (@"您需要进入手机的设置中设置允许访问\"运动与健康\"");
+            }else {
+                failure (@"该设备不支持计步");
+            }
+        }else {
+            if (![CMMotionActivityManager isActivityAvailable]) {
+                failure (@"您需要进入手机的设置中设置允许访问\"运动与健康\"");
+            }else {
+                failure (@"该设备不支持计步");
+            }
+        }
     }
 }
 
@@ -60,10 +90,10 @@ static CMPedometer *_pedometer;
 
 //检测设备是否可以计步
 + (BOOL)isStepCountingAvailable {
-    if (!([CMPedometer isStepCountingAvailable] || [CMMotionActivityManager isActivityAvailable])) {
-        return NO;
-    }else {
+    if ([CMPedometer isStepCountingAvailable] && [CMMotionActivityManager isActivityAvailable]) {
         return YES;
+    }else {
+        return NO;
     }
 }
 

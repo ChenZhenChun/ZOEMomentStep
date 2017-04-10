@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
 s.name              = "ZOEMomentStep"
 
 #更新代码必须修改版本号
-s.version           = "1.0.1"
+s.version           = "1.0.2"
 s.summary           = "Steps for the iphone device."
 s.description       = <<-DESC
 It is a ZOEMomentStep used on iOS, which implement by Objective-C.
